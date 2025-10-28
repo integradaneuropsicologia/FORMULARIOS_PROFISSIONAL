@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Painel do Profissional — Integrada Neuropsicologia</title>
+<meta name="description" content="Lista de pacientes com formulários pendentes para o profissional preencher."/>
+<style>
+:root{
+  --bg:#0e1625; --card:#14213b; --line:#2b3f66;
+  --text:#f8fafc; --muted:#cbd5e1;
+  --pri:#6d28d9; --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
+  --chip:#0b1220;
+
+  --src-profissional:#ff0909;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.wrap{max-width:980px;margin:20px auto;padding:0 16px}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  gap:8px;
+}
+.brand{font-weight:700;overflow-wrap:anywhere}
+h1{margin:0 0 12px;font-size:1.15rem;line-height:1.3}
+.muted{color:var(--muted);font-size:.9rem;line-height:1.4}
+
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--pri);border:none;color:#fff;
+  padding:10px 14px;border-radius:10px;
+  cursor:pointer;font-weight:600;
+  font-size:.9rem;
+}
+.btn.sec{background:#334155}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+.msg{margin:12px 0;padding:12px;border-radius:10px;font-size:.9rem;line-height:1.4}
+.okbox{background:#06351f;border:1px solid #0e6c45;color:#c8ffe3}
+.warnbox{background:#3a2903;border:1px solid #885e09;color:#ffe6b0}
+.errbox{background:#3b0d0d;border:1px solid #7f1d1d;color:#ffd5d5}
+.hidden{display:none !important}
+
+/* Lista de pacientes */
+.pac-list{
+  margin-top:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* Cada paciente vira um <details> estilizado */
+.pac-card{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+/* Cabeçalho clicável (summary) */
+.pac-head{
+  list-style:none;
+  cursor:pointer;
+  padding:14px 16px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  background:rgba(255,9,9,.07); /* leve tom da cor do profissional */
+  border-left:6px solid var(--src-profissional);
+}
+.pac-main{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.pac-nome{
+  font-weight:600;
+  font-size:1rem;
+  line-height:1.35;
+  word-break:break-word;
+}
+.pac-extra{
+  font-size:.8rem;
+  color:var(--muted);
+  line-height:1.3;
+  word-break:break-word;
+}
+
+/* Contador de pendências */
+.pac-count{
+  background:var(--src-profissional);
+  color:#fff;
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:.75rem;
+  font-weight:600;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+/* Corpo interno quando abre */
+.pac-body{
+  padding:16px;
+  border-top:1px solid var(--line);
+  background:rgba(0,0,0,.28);
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+
+/* Cada formulário pendente */
+.form-item{
+  background:rgba(0,0,0,.22);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.form-head{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.form-title{
+  font-weight:600;
+  font-size:.95rem;
+  line-height:1.35;
+  word-break:break-word;
+}
+.form-code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.75rem;
+  color:var(--muted);
+  line-height:1.3;
+  word-break:break-word;
+}
+
+/* Botão de responder formulário */
+.form-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.btn-prof{
+  background:var(--src-profissional);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:10px 12px;
+  font-weight:600;
+  font-size:.9rem;
+  cursor:pointer;
+  min-width:140px;
+  text-align:center;
+}
+
+/* Remove triângulo padrão do <summary> no Chrome/WebKit */
+summary::-webkit-details-marker{display:none}
+summary::marker{content:""}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">Integrada Neuropsicologia — Painel do Profissional</div>
+    <div>
+      <button id="btnAtualizar" class="btn sec">Atualizar</button>
+    </div>
+  </div>
+
+  <div id="msg" class="msg hidden"></div>
+
+  <section class="card">
+    <h1>Formulários pendentes do profissional</h1>
+    <div class="muted">
+      Aqui aparecem somente os pacientes que ainda exigem resposta do profissional.
+      Se todos os formulários já foram preenchidos, o paciente some da lista.
+    </div>
+
+    <div id="pacList" class="pac-list">
+      <!-- pacientes dinâmicos -->
+    </div>
+
+  </section>
+</div>
+
+<script>
+/* ===========================
+ * CONFIG BÁSICA
+ * =========================== */
+const SHEETDB_BASE = "https://sheetdb.io/api/v1/8pmdh33s9fvy8";
+
+const SHEETS = {
+  TESTS:    "Tests",
+  PATIENTS: "Patients",
+  TOKENS:   "LinkTokens"
+};
+
+// Mesmos prefixos/sufixos do teu sistema principal:
+const TEST_PREFIX  = "";       // se você usa "TEST_" no Sheets, coloca aqui
+const DONE_SUFFIX  = "_FEITO"; // coluna de concluído
+
+// helper básico p/ limpar caracteres que não são dígitos
+function onlyDigits(s){
+  return (s||"").replace(/\D+/g,"");
+}
+
+function maskCPF(cpf){
+  const d = onlyDigits(cpf||"");
+  if(d.length!==11) return cpf||"";
+  return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+}
+
+// cola params em uma URL mesmo se ela já tiver query
+function buildUrl(base, params){
+  try{
+    const u = new URL(base, location.href);
+    Object.entries(params||{}).forEach(([k,v])=>{
+      u.searchParams.set(k, v);
+    });
+    return u.toString();
+  }catch(_){
+    // fallback bem bruto
+    const q = Object.entries(params||{})
+      .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join("&");
+    return base + (base.includes("?") ? "&" : "?") + q;
+  }
+}
+
+
+/* ===========================
+ * HELPERS
+ * =========================== */
+const $ = sel => document.querySelector(sel);
+
+function setMsg(text="", type="ok"){
+  const box = $("#msg");
+  box.textContent = text;
+  box.className = "msg " + (
+    type==="ok"   ? "okbox"   :
+    type==="warn" ? "warnbox" :
+                    "errbox"
+  );
+  if(text){
+    box.classList.remove("hidden");
+  }else{
+    box.classList.add("hidden");
+  }
+}
+
+// Busca TODOS os registros de uma aba (sem filtro)
+async function sheetAll(sheet){
+  const url = `${SHEETDB_BASE}?sheet=${encodeURIComponent(sheet)}`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("Falha ao buscar "+sheet);
+  return r.json();
+}
+
+// Busca com filtro simples (já existia lógica parecida no seu outro código)
+async function sheetSearch(sheet, params){
+  const usp = new URLSearchParams(params||{});
+  const url = `${SHEETDB_BASE}/search?sheet=${encodeURIComponent(sheet)}&${usp.toString()}`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("Falha ao buscar em "+sheet);
+  return r.json();
+}
+
+// tira pontuação de CPF etc.
+function onlyDigits(s){
+  return (s||"").replace(/\D+/g,"");
+}
+
+function maskCPF(cpf){
+  const d = onlyDigits(cpf||"");
+  if(d.length!==11) return cpf||"";
+  return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+}
+
+// o nome da coluna de liberação do teste pro paciente
+function colFor(test){
+  return (TEST_PREFIX ? TEST_PREFIX + test.code : test.code);
+}
+
+// nome da coluna "feito"
+function doneColFor(test){
+  return colFor(test) + DONE_SUFFIX;
+}
+
+// normaliza o campo "source" de cada teste pra descobrir se é profissional
+function normalizeSource(raw){
+  const s = (raw||"").toString().toLowerCase()
+    .normalize("NFD").replace(/\p{Diacritic}/gu,"").trim();
+
+  // Profissional / avaliador / psicólogo
+  if (/\b(profiss(ional)?|avaliador(a)?|psico(logo|loga)?|neuropsico(logo|loga)?|terapeuta)\b/.test(s)){
+    return { cls:"profissional", label:"Profissional" };
+  }
+
+  // pais / cuidadores
+  if (/\b(pais|pai|mae|mae|cuidador(a)?|responsavel)\b/.test(s)){
+    return { cls:"pais", label:"Pais/Cuidadores" };
+  }
+
+  // professores
+  if (/\b(professor(es)?|docente(s)?|escola)\b/.test(s)){
+    return { cls:"professores", label:"Professores" };
+  }
+
+  // familiares / amigos
+  if (/\b(familia(res)?|amig(o|a|os|as))\b/.test(s)){
+    return { cls:"familiares", label:"Familiares/Amigos" };
+  }
+
+  // fallback: paciente
+  if (/\b(pac(iente)?|autorrelato)\b/.test(s)){
+    return { cls:"paciente", label:"Paciente" };
+  }
+
+  // se não reconheceu, trato como profissional mesmo (melhor sobrar que faltar)
+  return { cls:"profissional", label: raw || "Profissional" };
+}
+
+// gera o link que o profissional vai abrir para preencher aquele teste
+// A ideia: usar a mesma lógica de "share_url" que você já usa pra heterorrelato,
+// passando cpf + source=profissional, sem token.
+
+
+/* ===========================
+ * CARREGAR DADOS
+ * =========================== */
+let testsCatalog = []; // todos os testes ativos
+let patients = [];     // todos os pacientes
+
+async function loadAllData(){
+  // 1. pega todos os testes ativos
+  const testRows = await sheetSearch(SHEETS.TESTS, { active:"sim" });
+  testsCatalog = testRows.map(r=>{
+    const code       = (r.code||"").trim();
+    const label      = (r.label||code).trim();
+    const order      = Number(r.order||9999);
+    const sourceRaw  = (r.source||"profissional").trim();
+    const form_url   = (r.form_url||"").trim();   // <-- NOVO: usamos form_url
+    return {
+      code,
+      label,
+      order,
+      source: sourceRaw,
+      form_url
+    };
+  })
+  .filter(t => t.code)
+  .sort((a,b)=> a.order-b.order || a.label.localeCompare(b.label));
+
+  // 2. pega todos os pacientes
+  patients = await sheetAll(SHEETS.PATIENTS);
+
+  // 3. pega tokens (cpf -> token)
+  //    vamos puxar toda a aba LinkTokens e montar um dicionário
+  const tokenRows = await sheetAll(SHEETS.TOKENS);
+  tokenMapByCPF = {};
+  for(const row of tokenRows){
+    const cpfDigits = onlyDigits(row.cpf||"");
+    const tok       = row.token || "";
+    if(cpfDigits && tok){
+      tokenMapByCPF[cpfDigits] = tok;
+    }
+  }
+}
+
+/* ===========================
+ * LÓGICA DE PENDENTES POR PACIENTE (só profissional)
+ * =========================== */
+function getPendingForProfessional(pac){
+  // 1. filtra testes que são do profissional
+  const profTests = testsCatalog.filter(t=>{
+    const n = normalizeSource(t.source).cls;
+    return n === "profissional";
+  });
+
+  // 2. desses, pega só os liberados pra esse paciente (coluna == "sim")
+  //    e ainda não marcados como feitos
+  const pendentes = [];
+  for(const t of profTests){
+    const col   = colFor(t);      // ex "ATA"
+    const doneC = doneColFor(t);  // ex "ATA_FEITO"
+
+    const liberado = String(pac[col]||"").toLowerCase()==="sim";
+    const feito    = String(pac[doneC]||"").toLowerCase()==="sim";
+
+    if(liberado && !feito){
+      pendentes.push(t);
+    }
+  }
+
+  return pendentes;
+}
+
+/* ===========================
+ * RENDER
+ * =========================== */
+function renderPatientList(){
+  const listEl = $("#pacList");
+  listEl.innerHTML = "";
+
+  let totalPacientesComPendencias = 0;
+
+  // vamos ordenar por nome só pra ficar bonito
+  const ordered = [...patients].sort((a,b)=>{
+    const na = (a.nome||"").toLowerCase();
+    const nb = (b.nome||"").toLowerCase();
+    return na.localeCompare(nb);
+  });
+
+  for(const pac of ordered){
+    const pendentes = getPendingForProfessional(pac); // array de testes pendentes
+    if(!pendentes.length) continue; // se não tem nada pra esse paciente -> não mostra
+
+    totalPacientesComPendencias++;
+
+    // monta o card (<details>)
+    const det  = document.createElement("details");
+    det.className = "pac-card";
+
+    const sum  = document.createElement("summary");
+    sum.className = "pac-head";
+
+    const main = document.createElement("div");
+    main.className = "pac-main";
+
+    const nome = document.createElement("div");
+    nome.className = "pac-nome";
+    nome.textContent = pac.nome || "Paciente sem nome";
+
+    const extra = document.createElement("div");
+    extra.className = "pac-extra";
+    extra.textContent = `CPF: ${maskCPF(pac.cpf||"")} • Pendentes: ${pendentes.length}`;
+
+    main.appendChild(nome);
+    main.appendChild(extra);
+
+    const count = document.createElement("div");
+    count.className = "pac-count";
+    count.textContent = `${pendentes.length} pendente(s)`;
+
+    sum.appendChild(main);
+    sum.appendChild(count);
+
+    det.appendChild(sum);
+
+    // corpo interno com os formulários
+    const body = document.createElement("div");
+    body.className = "pac-body";
+
+    for(const t of pendentes){
+      const item  = document.createElement("div");
+      item.className = "form-item";
+
+      const head  = document.createElement("div");
+      head.className = "form-head";
+
+      const ttl   = document.createElement("div");
+      ttl.className = "form-title";
+      ttl.textContent = t.label || t.code;
+
+      const code  = document.createElement("div");
+      code.className = "form-code";
+      code.textContent = t.code;
+
+      head.appendChild(ttl);
+      head.appendChild(code);
+
+      const actions = document.createElement("div");
+      actions.className = "form-actions";
+
+      const btn = document.createElement("button");
+btn.className = "btn-prof";
+btn.textContent = "Responder formulário";
+
+btn.addEventListener("click", ()=>{
+  // 1. pegar o token do paciente pelo CPF
+  const cpfDigits = onlyDigits(pac.cpf || "");
+  const tok = tokenMapByCPF[cpfDigits];
+
+  if(!tok){
+    alert("Não foi possível localizar o token desse paciente. Fale com a clínica.");
+    return;
+  }
+
+  // 2. pegar a URL base do formulário a partir da linha da aba Tests
+  //    prioridade: t.form_url (se existir)
+  let baseUrl = t.form_url || "";
+  if(!baseUrl){
+    alert("Não há form_url configurada para este formulário ("+t.code+").");
+    return;
+  }
+
+  // 3. montar URL final com ?token=...
+  const finalUrl = buildUrl(baseUrl, { token: tok });
+
+  // 4. abrir
+  window.open(finalUrl, "_self");
+});
+
+
+      actions.appendChild(btn);
+
+      item.appendChild(head);
+      item.appendChild(actions);
+      body.appendChild(item);
+    }
+
+    det.appendChild(body);
+    listEl.appendChild(det);
+  }
+
+  if(totalPacientesComPendencias === 0){
+    listEl.innerHTML = `
+      <div class="muted" style="text-align:center;padding:24px 12px;">
+        Nenhum formulário pendente para o profissional no momento.
+      </div>`;
+  }
+}
+
+/* ===========================
+ * BOOT
+ * =========================== */
+async function boot(){
+  try{
+    setMsg("Carregando pacientes e formulários pendentes...", "warn");
+    await loadAllData();
+    renderPatientList();
+    setMsg(""); // limpa
+  }catch(e){
+    console.error(e);
+    setMsg(e.message || "Falha ao carregar dados.", "err");
+  }
+}
+boot();
+
+/* ===========================
+ * ATUALIZAR MANUALMENTE
+ * =========================== */
+$("#btnAtualizar").addEventListener("click", async ()=>{
+  try{
+    setMsg("Atualizando...", "warn");
+    await loadAllData();
+    renderPatientList();
+    setMsg("Pronto.", "ok");
+    setTimeout(()=>setMsg(""), 1200);
+  }catch(e){
+    console.error(e);
+    setMsg("Erro ao atualizar.", "err");
+  }
+});
+</script>
+</body>
+</html>
