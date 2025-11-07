@@ -1,0 +1,355 @@
+:root {
+  --font-main: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
+  --radius-card: 14px;
+
+  --src-profissional: #ff0909;
+}
+
+/* ========= TEMA CLARO (PADRÃO) ========= */
+body[data-theme="light"] {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --line: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --pri: #4f46e5;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --err: #dc2626;
+  --chip: #f9fafb;
+
+  --msg-ok-bg: #ecfdf5;
+  --msg-ok-border: #bbf7d0;
+  --msg-ok-text: #166534;
+
+  --msg-warn-bg: #fffbeb;
+  --msg-warn-border: #fed7aa;
+  --msg-warn-text: #92400e;
+
+  --msg-err-bg: #fef2f2;
+  --msg-err-border: #fecaca;
+  --msg-err-text: #991b1b;
+
+  --pac-bg: #f9fafb;
+  --pac-body-bg: #f1f5f9;
+  --form-bg: #f9fafb;
+
+  --btn-sec-bg: #e5e7eb;
+  --btn-sec-text: #111827;
+}
+
+/* ========= TEMA ESCURO ========= */
+body[data-theme="dark"] {
+  --bg: #0e1625;
+  --card: #14213b;
+  --line: #2b3f66;
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --pri: #6d28d9;
+  --ok: #10b981;
+  --warn: #f59e0b;
+  --err: #ef4444;
+  --chip: #0b1220;
+
+  --msg-ok-bg: #06351f;
+  --msg-ok-border: #0e6c45;
+  --msg-ok-text: #c8ffe3;
+
+  --msg-warn-bg: #3a2903;
+  --msg-warn-border: #885e09;
+  --msg-warn-text: #ffe6b0;
+
+  --msg-err-bg: #3b0d0d;
+  --msg-err-border: #7f1d1d;
+  --msg-err-text: #ffd5d5;
+
+  --pac-bg: rgba(0,0,0,.18);
+  --pac-body-bg: rgba(0,0,0,.28);
+  --form-bg: rgba(0,0,0,.22);
+
+  --btn-sec-bg: #334155;
+  --btn-sec-text: #f9fafb;
+}
+
+/* ========= BASE ========= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 18px;
+}
+
+/* TOPBAR */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.brand {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.top-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* TEXTOS */
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* BOTÕES */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--pri);
+  border: none;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.22);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn.sec {
+  background: var(--btn-sec-bg);
+  color: var(--btn-sec-text);
+}
+
+/* MENSAGENS */
+
+.msg {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.okbox {
+  background: var(--msg-ok-bg);
+  border-color: var(--msg-ok-border);
+  color: var(--msg-ok-text);
+}
+
+.warnbox {
+  background: var(--msg-warn-bg);
+  border-color: var(--msg-warn-border);
+  color: var(--msg-warn-text);
+}
+
+.errbox {
+  background: var(--msg-err-bg);
+  border-color: var(--msg-err-border);
+  color: var(--msg-err-text);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* LISTA DE PACIENTES */
+
+.pac-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pac-card {
+  background: var(--pac-bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Cabeçalho <summary> */
+
+.pac-head {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 9, 9, 0.06);
+  border-left: 6px solid var(--src-profissional);
+}
+
+.pac-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pac-nome {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.pac-extra {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Contador de pendências */
+
+.pac-count {
+  background: var(--src-profissional);
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Corpo interno */
+
+.pac-body {
+  padding: 16px;
+  border-top: 1px solid var(--line);
+  background: var(--pac-body-bg);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Formulário pendente */
+
+.form-item {
+  background: var(--form-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.form-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.form-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Botão do formulário */
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-prof {
+  background: var(--src-profissional);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 160px;
+  text-align: center;
+}
+
+.btn-prof:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(148, 27, 27, 0.5);
+}
+
+.btn-prof:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Remove marcador padrão do summary */
+summary::-webkit-details-marker { display: none; }
+summary::marker { content: ""; }
